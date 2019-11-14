@@ -3,6 +3,10 @@ from scipy.stats import mode
 
 class KNN:
 
+    @staticmethod
+    def static(a, b):
+        print("Static method")
+
     def __init__(self, k):
         self._k = k
 
