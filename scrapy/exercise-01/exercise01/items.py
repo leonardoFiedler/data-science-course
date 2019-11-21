@@ -8,3 +8,5 @@ class Exercise01Item(scrapy.Item):
     rate = scrapy.Field()
     category = scrapy.Field()
     upc = scrapy.Field()
+    scrape_date = scrapy.Field()
+    url = scrapy.Field()

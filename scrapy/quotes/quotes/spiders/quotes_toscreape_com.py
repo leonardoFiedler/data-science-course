@@ -15,7 +15,7 @@ class QuotesToscreapeComSpider(scrapy.Spider):
     def start_requests(self):
         yield scrapy.Request(
             'http://quotes.toscrape.com/',
-            callback=self.parse_quotes
+            callback=self.parse
         )
 
     def parse(self, response):
