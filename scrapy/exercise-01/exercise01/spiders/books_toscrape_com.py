@@ -6,24 +6,27 @@ import re
 class BooksToscrapeComSpider(scrapy.Spider):
     name = 'books.toscrape.com'
     allowed_domains = ['books.toscrape.com']
-    start_urls = ['http://books.toscrape.com/']
 
-    def start_requests(self):
-        yield scrapy.Request(
-            'http://books.toscrape.com/',
-            callback=self.parse
-        )
+    categories = [("travel", "travel_2"), ("mystery", "mystery_3"), ("historical fiction", "historical-fiction_4")]
+
+    def __init__(self, category=None, *args, **kwargs):
+        super(BooksToscrapeComSpider, self).__init__(*args, **kwargs)
+        if (category == None):
+            self.start_urls = ['http://books.toscrape.com/']
+        else:
+            (_, urlpath) = [item for item in self.categories if item[0] == category.lower()][0]
+            print("Category Path", urlpath)
+            self.start_urls = ['http://books.toscrape.com/catalogue/category/books/%s/index.html' % urlpath]
 
     def parse(self, response):
         for (i, book) in enumerate(response.css("section .row li")):
-            # Gets the link to item - Remove the last part of the request URL
-            baseUrl = "/".join(response.request.url.split("/")[:-1])
+            #linkDetailItem = response.urljoin(book.css(".product_pod h3 a").attrib['href'])
+            linkDetailItem = response.urljoin(book.css(".product_pod h3 a::attr(href)").get())
 
-            # Join whith / and href attribute to get the full path to redirect
-            linkDetailItem = baseUrl + "/" + book.css(".product_pod h3 a").attrib['href']
+            #name = book.css(".product_pod h3 a").attrib['title']
+            name = book.css(".product_pod h3 a::attr(title)").get()
+            price = book.css(".product_pod .price_color::text").get()[1:]
 
-            name = book.css(".product_pod h3 a").attrib['title']
-            price = book.css(".product_pod .price_color::text").get()
             available = book.css(".product_price .instock.availability").extract() != None
             
             item = Exercise01Item(
