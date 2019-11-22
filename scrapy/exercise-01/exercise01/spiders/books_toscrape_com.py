@@ -11,7 +11,7 @@ class BooksToscrapeComSpider(scrapy.Spider):
 
     def __init__(self, category=None, *args, **kwargs):
         super(BooksToscrapeComSpider, self).__init__(*args, **kwargs)
-        if (category == None):
+        if (category is None):
             self.start_urls = ['http://books.toscrape.com/']
         else:
             (_, urlpath) = [item for item in self.categories if item[0] == category.lower()][0]
@@ -20,14 +20,11 @@ class BooksToscrapeComSpider(scrapy.Spider):
 
     def parse(self, response):
         for (i, book) in enumerate(response.css("section .row li")):
-            #linkDetailItem = response.urljoin(book.css(".product_pod h3 a").attrib['href'])
             linkDetailItem = response.urljoin(book.css(".product_pod h3 a::attr(href)").get())
-
-            #name = book.css(".product_pod h3 a").attrib['title']
             name = book.css(".product_pod h3 a::attr(title)").get()
             price = book.css(".product_pod .price_color::text").get()[1:]
 
-            available = book.css(".product_price .instock.availability").extract() != None
+            available = book.css(".product_price .instock.availability").extract() is not None
             
             item = Exercise01Item(
                 name=name,
@@ -37,7 +34,7 @@ class BooksToscrapeComSpider(scrapy.Spider):
             yield scrapy.Request(linkDetailItem, callback=self.parseItem, cb_kwargs=dict(item=item))
         
         nextPageUrl = response.css('.pager .next a::attr(href)').get()
-        print("Next Page", nextPageUrl)
+
         if nextPageUrl:
             yield response.follow(nextPageUrl)
 
